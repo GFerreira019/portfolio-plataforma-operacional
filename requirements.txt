@@ -1,0 +1,11 @@
+Django
+djangorestframework
+psycopg
+python-dotenv
+django-cors-headers
+
+# Tests & Linting
+pytest
+pytest-django
+flake8
+black
