@@ -29,3 +29,31 @@ class Apontamento(models.Model):
 
     def __str__(self):
         return f"{self.data} - {self.colaborador.nome} - {self.horas}h"
+
+    @property
+    def custo_realizado(self):
+        return self.horas * self.custo_hora
+
+    def save(self, *args, **kwargs):
+        from django.core.exceptions import ValidationError
+
+        if not self.pk:
+            # Snapshot histórico na criação
+            if self.colaborador:
+                self.custo_hora = self.colaborador.custo_hora
+        else:
+            # Regra: Bloquear edição de apontamentos se o Status for APROVADO (exceto mudança de status)
+            old_instance = Apontamento.objects.get(pk=self.pk)
+            if old_instance.status == 'APROVADO':
+                # Verifica se outros campos foram alterados além do status
+                changed = False
+                fields_to_check = ['projeto_id', 'equipamento_id', 'atividade_id', 'colaborador_id', 'data', 'horas', 'quantidade']
+                for field in fields_to_check:
+                    if getattr(old_instance, field) != getattr(self, field):
+                        changed = True
+                        break
+                
+                if changed:
+                    raise ValidationError("Não é permitido editar informações de um apontamento já APROVADO.")
+
+        super().save(*args, **kwargs)

@@ -19,6 +19,22 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
 - Registrar aqui cada nova implementação, correção ou decisão técnica antes de considerar a entrega concluída.
 
+### 2026-09-28 (Fase 5)
+- **O que foi feito:** Custos, auditoria e regras de domínio (Fase 5) concluída.
+- **Áreas afetadas:**
+  - `operations/models.py`: Implementado snapshot no método `save()` do model `Apontamento` para capturar e congelar o `custo_hora` do Colaborador. Adicionado o atributo de propriedade `@property` `custo_realizado`.
+  - `operations/models.py` e `operations/serializers.py`: Adicionada validação rigorosa que bloqueia a edição de campos (`horas`, `data`, `projeto`, etc.) em Apontamentos cujo status já seja `APROVADO`.
+- **Validações executadas:** Adicionados e passados os testes `test_snapshot_historico_imutabilidade` e `test_bloquear_edicao_apontamento_aprovado` em `operations/tests.py`. A suíte conta agora com 6 testes passando em 100%.
+
+### 2026-09-28 (Fase 4)
+- **O que foi feito:** API e Apontamento de Campo (Fase 4) concluída.
+- **Áreas afetadas:**
+  - `core/settings.py`: Configurada a paginação global com `PageNumberPagination` (tamanho 20).
+  - `catalog/serializers.py` e `catalog/views.py`: Criados ViewSets do DRF para listar todo o catálogo usando *Eager Loading* (`select_related`) e permissão de leitura para os técnicos.
+  - `operations/serializers.py` e `operations/views.py`: API de Apontamento criada. Injetada regra de negócio no `validate()` exigindo que a combinação `(Projeto, Equipamento, Atividade)` exista na tabela de vínculos. Eager loading aplicado com `select_related`.
+  - `core/urls.py`: Adicionada as rotas usando o `DefaultRouter` do DRF para `clientes`, `projetos`, `equipamentos`, `atividades`, `colaboradores` e `apontamentos`.
+- **Validações executadas:** Adicionado `test_combinacao_invalida_rejeitada` na suíte, validando que equipamentos não vinculados aos projetos são rejeitados de imediato. Todos os 4 testes da aplicação estão passando.
+
 ### 2026-09-28 (Fase 3)
 - **O que foi feito:** Autenticação e Permissões (Fase 3) concluída.
 - **Áreas afetadas:**

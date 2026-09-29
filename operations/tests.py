@@ -110,3 +110,99 @@ class RLSAndPermissionsTestCase(TestCase):
         # Mas um planejador pode aprovar o do tecnico 1
         serializer_t1 = ApontamentoSerializer(instance=self.apont_t1, data={'status': 'APROVADO'}, partial=True, context={'request': MockRequest(self.user_planejador)})
         self.assertTrue(serializer_t1.is_valid())
+
+    def test_combinacao_invalida_rejeitada(self):
+        from operations.serializers import ApontamentoSerializer
+        
+        class MockRequest:
+            def __init__(self, user):
+                self.user = user
+
+        # Equipamento 2 (não vinculado ao projeto 1 no PEA)
+        equip2 = Equipamento.objects.create(codigo='EQ2', nome='Equip 2')
+        
+        data = {
+            'projeto': self.projeto.id,
+            'equipamento': equip2.id,
+            'atividade': self.ativ.id,
+            'data': '2026-10-01',
+            'horas': 5.0
+        }
+        
+        serializer = ApontamentoSerializer(data=data, context={'request': MockRequest(self.user_tecnico1)})
+        self.assertFalse(serializer.is_valid())
+        self.assertIn('non_field_errors', serializer.errors)
+        self.assertEqual(str(serializer.errors['non_field_errors'][0]), "A combinação de Projeto, Equipamento e Atividade não possui vínculo pré-cadastrado no catálogo.")
+        
+        # Testar a combinação Válida
+        data_valida = {
+            'projeto': self.projeto.id,
+            'equipamento': self.equip.id,
+            'atividade': self.ativ.id,
+            'data': '2026-10-01',
+            'horas': 5.0
+        }
+        
+        serializer_valido = ApontamentoSerializer(data=data_valida, context={'request': MockRequest(self.user_tecnico1)})
+        self.assertTrue(serializer_valido.is_valid())
+
+    def test_snapshot_historico_imutabilidade(self):
+        # O Apontamento inicial (apont_t1) foi criado quando tecnico1 tinha custo_hora=50.0
+        self.assertEqual(self.apont_t1.custo_hora, 50.0)
+        self.assertEqual(self.apont_t1.custo_realizado, 4.0 * 50.0)
+        
+        # Simulando uma promoção/aumento
+        self.colab1.custo_hora = 75.0
+        self.colab1.save()
+        
+        # O apontamento já existente NÃO DEVE ter seu custo alterado
+        self.apont_t1.refresh_from_db()
+        self.assertEqual(self.apont_t1.custo_hora, 50.0)
+        self.assertEqual(self.apont_t1.custo_realizado, 200.0)
+        
+        # Um NOVO apontamento deve pegar o novo custo
+        novo_apont = Apontamento.objects.create(
+            projeto=self.projeto,
+            equipamento=self.equip,
+            atividade=self.ativ,
+            colaborador=self.colab1,
+            data=date.today(),
+            horas=2.0
+        )
+        self.assertEqual(novo_apont.custo_hora, 75.0)
+        self.assertEqual(novo_apont.custo_realizado, 150.0)
+
+    def test_bloquear_edicao_apontamento_aprovado(self):
+        from operations.serializers import ApontamentoSerializer
+        from django.core.exceptions import ValidationError
+
+        class MockRequest:
+            def __init__(self, user):
+                self.user = user
+
+        # O Planejador aprova o apontamento do tecnico 1
+        self.apont_t1.status = 'APROVADO'
+        self.apont_t1.save()
+        
+        # 1. Testando via Serializer (API)
+        data = {'horas': 10.0} # Tentando mudar as horas
+        serializer = ApontamentoSerializer(
+            instance=self.apont_t1, 
+            data=data, 
+            partial=True, 
+            context={'request': MockRequest(self.user_planejador)}
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertIn('non_field_errors', serializer.errors)
+        self.assertEqual(
+            str(serializer.errors['non_field_errors'][0]), 
+            "Não é permitido editar informações de um apontamento já APROVADO."
+        )
+        
+        # 2. Testando via Model (save)
+        with self.assertRaises(ValidationError) as context:
+            self.apont_t1.horas = 12.0
+            self.apont_t1.save()
+        
+        self.assertTrue("Não é permitido editar informações de um apontamento já APROVADO." in str(context.exception))
+

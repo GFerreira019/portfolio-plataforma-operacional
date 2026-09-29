@@ -59,19 +59,19 @@
 
 ## Fase 4: API e apontamento de campo
 
-- [ ] Criar endpoints base do DRF para listagem e criação.
-- [ ] Validar no backend a combinação projeto, equipamento e atividade.
-- [ ] Configurar Paginação (ex: `PageNumberPagination`) em views de grande volume.
-- [ ] Aplicar Eager Loading (`select_related`, `prefetch_related`) para prevenir N+1 queries herdando boa prática do legado.
-- [ ] Criar testes de API para validação de serializers e sanitização.
+- [x] Criar endpoints base do DRF para listagem e criação.
+- [x] Validar no backend a combinação projeto, equipamento e atividade.
+- [x] Configurar Paginação (ex: `PageNumberPagination`) em views de grande volume.
+- [x] Aplicar Eager Loading (`select_related`, `prefetch_related`) para prevenir N+1 queries herdando boa prática do legado.
+- [x] Criar testes de API para validação de serializers e sanitização.
 
 ## Fase 5: Custos, auditoria e regras de domínio
 
-- [ ] Implementar Snapshot Histórico: Salvar o custo-hora e nível do colaborador no momento do apontamento (via Model `save()` ou Signals).
-- [ ] Calcular o custo realizado a partir deste snapshot imutável.
-- [ ] Isolar as regras de mudança de Status (`EM_ANÁLISE`, `APROVADO`, `REJEITADO`).
-- [ ] Bloquear edição de apontamentos se o Status for `APROVADO`.
-- [ ] Criar testes de auditoria e imutabilidade de custos históricos frente a promoções de colaboradores.
+- [x] Implementar Snapshot Histórico: Salvar o custo-hora e nível do colaborador no momento do apontamento (via Model `save()` ou Signals).
+- [x] Calcular o custo realizado a partir deste snapshot imutável.
+- [x] Isolar as regras de mudança de Status (`EM_ANÁLISE`, `APROVADO`, `REJEITADO`).
+- [x] Bloquear edição de apontamentos se o Status for `APROVADO`.
+- [x] Criar testes de auditoria e imutabilidade de custos históricos frente a promoções de colaboradores.
 
 ## Fase 6: Orçamento, avanço e previsão
 
