@@ -19,6 +19,14 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
 - Registrar aqui cada nova implementação, correção ou decisão técnica antes de considerar a entrega concluída.
 
+### 2026-09-28 (Fase 6)
+- **O que foi feito:** Orçamento, avanço e previsão (Fase 6) concluída.
+- **Áreas afetadas:**
+  - `operations/services.py`: Camada de domínio puramente determinística para cálculo dos KPIs. Lida com divisão por zero.
+  - `catalog/views.py`: Exposição dos KPIs via API REST através de uma `@action` de detalhe (`/api/projetos/<id>/kpis/`).
+- **Métricas calculadas:** Avanço físico (%), Desvio de Custo (R$ e %), Ritmo de Execução (unidades/hora) e Previsão de horas finais com extrapolação.
+- **Validações executadas:** Criados testes exaustivos (`AnalyticsServiceTestCase`) cobrindo ausência de apontamentos, projetos rodando no ritmo perfeito e projetos com estouro de custo e atraso. Suíte com 9 testes passando sem erros.
+
 ### 2026-09-28 (Fase 5)
 - **O que foi feito:** Custos, auditoria e regras de domínio (Fase 5) concluída.
 - **Áreas afetadas:**

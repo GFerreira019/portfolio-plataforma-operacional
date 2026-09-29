@@ -11,10 +11,22 @@ class ClienteViewSet(viewsets.ModelViewSet):
     serializer_class = ClienteSerializer
     permission_classes = [IsPlanejadorOrReadOnly]
 
+from rest_framework.decorators import action
+from rest_framework.response import Response
+
 class ProjetoViewSet(viewsets.ModelViewSet):
-    queryset = Projeto.objects.select_related('cliente').all() # Eager loading
+    queryset = Projeto.objects.select_related('cliente', 'orcamento').all() # Eager loading
     serializer_class = ProjetoSerializer
     permission_classes = [IsPlanejadorOrReadOnly]
+
+    @action(detail=True, methods=['get'])
+    def kpis(self, request, pk=None):
+        projeto = self.get_object()
+        from operations.services import ProjetoAnalyticsService
+        dados = ProjetoAnalyticsService.calcular_kpis(projeto)
+        if "error" in dados:
+            return Response({"error": dados["error"]}, status=400)
+        return Response(dados)
 
 class EquipamentoViewSet(viewsets.ModelViewSet):
     queryset = Equipamento.objects.all()

@@ -75,15 +75,15 @@
 
 ## Fase 6: Orçamento, avanço e previsão
 
-- [ ] Criar a comparação entre horas previstas e horas apontadas.
-- [ ] Criar a comparação entre quantidade prevista e quantidade realizada.
-- [ ] Calcular custo previsto, custo realizado e desvio de custo.
-- [ ] Calcular avanço físico com base na quantidade planejada e executada.
-- [ ] Definir e documentar a fórmula do ritmo de execução observado.
-- [ ] Calcular o desvio de prazo e a data prevista de término.
-- [ ] Isolar os cálculos em serviços Python determinísticos e independentes da interface.
-- [ ] Criar testes unitários para casos normais, ausência de dados, divisão por zero, excesso de execução e atraso.
-- [ ] Validar os resultados com um conjunto pequeno de dados de referência.
+- [x] Criar a comparação entre horas previstas e horas apontadas.
+- [x] Criar a comparação entre quantidade prevista e quantidade realizada.
+- [x] Calcular custo previsto, custo realizado e desvio de custo.
+- [x] Calcular avanço físico com base na quantidade planejada e executada.
+- [x] Definir e documentar a fórmula do ritmo de execução observado.
+- [x] Calcular o desvio de prazo e a data prevista de término.
+- [x] Isolar os cálculos em serviços Python determinísticos e independentes da interface.
+- [x] Criar testes unitários para casos normais, ausência de dados, divisão por zero, excesso de execução e atraso.
+- [x] Validar os resultados com um conjunto pequeno de dados de referência.
 
 ## Fase 7: Frontend operacional
 

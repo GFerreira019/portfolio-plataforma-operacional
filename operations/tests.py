@@ -3,7 +3,8 @@ from django.contrib.auth.models import User, Group
 from rest_framework.test import APIClient
 from catalog.models import Cliente, Projeto, Equipamento, ProjetoEquipamento, Atividade, ProjetoEquipamentoAtividade, Colaborador
 from operations.models import Apontamento
-from datetime import date
+from datetime import date, timedelta
+from decimal import Decimal
 
 class RLSAndPermissionsTestCase(TestCase):
     def setUp(self):
@@ -206,3 +207,77 @@ class RLSAndPermissionsTestCase(TestCase):
         
         self.assertTrue("Não é permitido editar informações de um apontamento já APROVADO." in str(context.exception))
 
+class AnalyticsServiceTestCase(TestCase):
+    def setUp(self):
+        self.cliente = Cliente.objects.create(codigo='CLI_ANALYTICS', nome='Cliente Analytics')
+        self.projeto = Projeto.objects.create(cliente=self.cliente, codigo='PRJ_ANALYTICS')
+        self.equip = Equipamento.objects.create(codigo='EQ_AN', nome='Equip')
+        self.ativ = Atividade.objects.create(codigo='AT_AN', nome='Ativ')
+        
+        self.user = User.objects.create_user(username='an_user', password='pwd')
+        self.colab = Colaborador.objects.create(nome='Analista', usuario=self.user, custo_hora=100.0)
+        
+        from catalog.models import Orcamento
+        # Orçamento com dados definidos
+        self.orcamento = Orcamento.objects.create(
+            projeto=self.projeto,
+            horas_previstas=100.0,
+            quantidade_prevista=500.0,
+            custo_previsto=10000.0,
+            prazo_previsto=date.today() + timedelta(days=30)
+        )
+
+    def test_analise_sem_apontamentos(self):
+        from operations.services import ProjetoAnalyticsService
+        # Caso: Sem apontamentos, verifica a divisão por zero.
+        resultado = ProjetoAnalyticsService.calcular_kpis(self.projeto)
+        
+        self.assertEqual(resultado['realizado']['horas'], Decimal('0.00'))
+        self.assertEqual(resultado['kpis']['avanco_fisico_pct'], Decimal('0.00'))
+        self.assertEqual(resultado['kpis']['ritmo_execucao_unid_por_hora'], Decimal('0.00'))
+        self.assertEqual(resultado['kpis']['desvio_custo_abs'], Decimal('-10000.00'))
+
+    def test_analise_caso_normal(self):
+        from operations.services import ProjetoAnalyticsService
+        # Lança 50 horas, faz 250 quantidades -> Metade do projeto.
+        # Custo_hora = 100 -> Custo = 50 * 100 = 5000.
+        Apontamento.objects.create(
+            projeto=self.projeto, equipamento=self.equip, atividade=self.ativ,
+            colaborador=self.colab, data=date.today(), horas=50.0, quantidade=250.0, status='APROVADO'
+        )
+        
+        res = ProjetoAnalyticsService.calcular_kpis(self.projeto)
+        self.assertEqual(res['realizado']['custo'], Decimal('5000.00'))
+        self.assertEqual(res['kpis']['avanco_fisico_pct'], Decimal('50.00')) # 50%
+        self.assertEqual(res['kpis']['ritmo_execucao_unid_por_hora'], Decimal('5.00')) # 250 / 50
+        self.assertEqual(res['kpis']['previsao_horas_finais'], Decimal('100.00')) # Ritmo exato
+        self.assertEqual(res['kpis']['desvio_horas_abs'], Decimal('0.00'))
+
+    def test_analise_atraso_excesso_custo(self):
+        from operations.services import ProjetoAnalyticsService
+        # Lança 100 horas, mas fez apenas 100 quantidades. Ritmo ruim.
+        # Custo_hora = 150 (aumento do analista)
+        self.colab.custo_hora = 150.0
+        self.colab.save()
+        
+        Apontamento.objects.create(
+            projeto=self.projeto, equipamento=self.equip, atividade=self.ativ,
+            colaborador=self.colab, data=date.today(), horas=100.0, quantidade=100.0, status='APROVADO'
+        )
+        
+        res = ProjetoAnalyticsService.calcular_kpis(self.projeto)
+        
+        # Custo real = 100h * 150 = 15000 (Previsto era 10000)
+        self.assertEqual(res['realizado']['custo'], Decimal('15000.00'))
+        self.assertEqual(res['kpis']['desvio_custo_abs'], Decimal('5000.00')) # 5000 acima do budget
+        self.assertEqual(res['kpis']['desvio_custo_pct'], Decimal('50.00')) # 50% mais caro
+        
+        # Avanço Físico = 100 / 500 = 20%
+        self.assertEqual(res['kpis']['avanco_fisico_pct'], Decimal('20.00'))
+        
+        # Ritmo = 100 und / 100 h = 1 und/hora
+        self.assertEqual(res['kpis']['ritmo_execucao_unid_por_hora'], Decimal('1.00'))
+        
+        # Previsão: Faltam 400 quantidades. Ritmo de 1 und/h -> Precisa de 500 horas totais.
+        self.assertEqual(res['kpis']['previsao_horas_finais'], Decimal('500.00'))
+        self.assertEqual(res['kpis']['desvio_horas_abs'], Decimal('400.00')) # 400 horas a mais que o previsto (100)
