@@ -87,12 +87,12 @@
 
 ## Fase 7: Frontend operacional
 
-- [ ] Definir a aplicação React e a integração com a API Django.
-- [ ] Implementar formulário principal (Seleção em cascata + Apontamento).
-- [ ] Aplicar bloqueio no frontend de edições indesejadas forçando envio seguro.
-- [ ] Criar painel do Planejador implementando a regra de fila de Anti-Autoaprovação na UI.
-- [ ] Implementar paginação transparente na leitura de apontamentos e orçamentos.
-- [ ] Testar fluxo mobile, carregamento vazio e sucesso.
+- [x] Definir a aplicação React e a integração com a API Django.
+- [x] Implementar formulário principal (Seleção em cascata + Apontamento).
+- [x] Aplicar bloqueio no frontend de edições indesejadas forçando envio seguro.
+- [x] Criar painel do Planejador implementando a regra de fila de Anti-Autoaprovação na UI.
+- [x] Implementar paginação transparente na leitura de apontamentos e orçamentos.
+- [x] Testar fluxo mobile, carregamento vazio e sucesso.
 
 ## Fase 8: CPQ, indicadores e BI
 

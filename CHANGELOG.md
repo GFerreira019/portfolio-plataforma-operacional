@@ -19,6 +19,16 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
 - Registrar aqui cada nova implementação, correção ou decisão técnica antes de considerar a entrega concluída.
 
+### 2026-09-28 (Fase 7)
+- **O que foi feito:** Frontend Operacional (Fase 7) concluída.
+- **Áreas afetadas:**
+  - `frontend_app/`: Criado e configurado usando Vite, React, React Router e Axios.
+  - `frontend_app/src/index.css`: Criado sistema de design "Glassmorphism" do zero (Dark Mode premium com paleta vibrante).
+  - `App.jsx` & `api.js`: Desenvolvido "Seletor de Usuário" para facilitar testes rápidos (Técnico vs Planejador).
+  - `ApontamentoForm.jsx`: Formulário com seleção de campos em cascata consumindo os dados da API com paginação inteligente.
+  - `PainelPlanejador.jsx`: Tabela para fila de aprovação de apontamentos e Dashboard em Tempo Real consumindo dados da arquitetura de KPIs (Avanço Físico, Desvio, Ritmo e Previsão) desenvolvida na Fase 6.
+  - `python_app/core/settings.py`: Resolvido CORS injetando globalmente o `django-cors-headers`.
+
 ### 2026-09-28 (Fase 6)
 - **O que foi feito:** Orçamento, avanço e previsão (Fase 6) concluída.
 - **Áreas afetadas:**
