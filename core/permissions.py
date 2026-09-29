@@ -27,3 +27,12 @@ class IsPlanejador(permissions.BasePermission):
     """
     def has_permission(self, request, view):
         return request.user and request.user.groups.filter(name='Planejador/Analista').exists()
+
+class IsPlanejadorOrReadOnly(permissions.BasePermission):
+    """
+    Permite edição aos Planejadores e apenas leitura aos demais (Técnicos).
+    """
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return request.user and request.user.groups.filter(name='Planejador/Analista').exists()
