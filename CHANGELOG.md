@@ -19,6 +19,15 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
 - Registrar aqui cada nova implementação, correção ou decisão técnica antes de considerar a entrega concluída.
 
+### 2026-10-04 (Fase 8)
+- **O que foi feito:** Configuração do CPQ, Indicadores e Business Intelligence (Fase 8) concluída.
+- **Áreas afetadas:**
+  - `catalog/serializers.py` & `catalog/views.py`: Exposição de APIs e serializadores para o fluxo de Orçamentação (`OrcamentoViewSet`, `ProjetoEquipamentoViewSet`).
+  - `core/urls.py`: Adicionadas as rotas de API para suprir o fluxo mínimo viável de orçamentação.
+  - `catalog/migrations/0004_create_bi_views.py`: Migration que constrói de forma robusta e persistente duas Views em SQL Otimizado (`bi_vw_projetos_kpi` e `bi_vw_apontamentos_detalhados`).
+  - `docs/powerbi_views.sql`: Export do código nativo SQL para rápida consulta de negócio.
+  - `docs/powerbi_guide.md`: Criação de guia tático e passo-a-passo explicando a arquitetura (Decoupling) entre a fonte de operação transacional e o consumo no PowerBI utilizando Read-Only Views.
+
 ### 2026-09-28 (Fase 7)
 - **O que foi feito:** Frontend Operacional (Fase 7) concluída.
 - **Áreas afetadas:**

@@ -20,7 +20,8 @@ from rest_framework.routers import DefaultRouter
 
 from catalog.views import (
     ClienteViewSet, ProjetoViewSet, EquipamentoViewSet,
-    AtividadeViewSet, ColaboradorViewSet
+    AtividadeViewSet, ColaboradorViewSet, OrcamentoViewSet,
+    ProjetoEquipamentoViewSet, ProjetoEquipamentoAtividadeViewSet
 )
 from operations.views import ApontamentoViewSet
 
@@ -30,6 +31,9 @@ router.register(r'projetos', ProjetoViewSet)
 router.register(r'equipamentos', EquipamentoViewSet)
 router.register(r'atividades', AtividadeViewSet)
 router.register(r'colaboradores', ColaboradorViewSet)
+router.register(r'orcamentos', OrcamentoViewSet)
+router.register(r'projeto-equipamentos', ProjetoEquipamentoViewSet)
+router.register(r'projeto-equipamento-atividades', ProjetoEquipamentoAtividadeViewSet)
 router.register(r'apontamentos', ApontamentoViewSet)
 
 urlpatterns = [

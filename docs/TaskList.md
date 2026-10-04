@@ -96,15 +96,15 @@
 
 ## Fase 8: CPQ, indicadores e BI
 
-- [ ] Definir o menor fluxo de orçamentação que entregue valor ao projeto.
-- [ ] Permitir ao planejador selecionar equipamentos e atividades válidos para um projeto.
-- [ ] Consolidar horas, quantidades, custos e prazo do orçamento.
-- [ ] Criar views ou consultas estáveis para indicadores operacionais e analíticos.
-- [ ] Conectar o PostgreSQL ao Power BI usando as views documentadas.
-- [ ] Criar dashboard de horas previstas versus realizadas.
-- [ ] Criar dashboard de quantidade prevista versus executada.
-- [ ] Criar indicadores de custo, produtividade, desvio e previsão de término.
-- [ ] Confirmar que o Power BI consome dados derivados sem se tornar a fonte oficial de operação.
+- [x] Definir o menor fluxo de orçamentação que entregue valor ao projeto.
+- [x] Permitir ao planejador selecionar equipamentos e atividades válidos para um projeto.
+- [x] Consolidar horas, quantidades, custos e prazo do orçamento.
+- [x] Criar views ou consultas estáveis para indicadores operacionais e analíticos.
+- [x] Conectar o PostgreSQL ao Power BI usando as views documentadas.
+- [x] Criar dashboard de horas previstas versus realizadas.
+- [x] Criar dashboard de quantidade prevista versus executada.
+- [x] Criar indicadores de custo, produtividade, desvio e previsão de término.
+- [x] Confirmar que o Power BI consome dados derivados sem se tornar a fonte oficial de operação.
 
 ## Fase 9: Qualidade, segurança e performance
 

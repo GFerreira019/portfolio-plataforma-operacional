@@ -1,5 +1,7 @@
 from rest_framework import serializers
-from .models import Cliente, Projeto, Equipamento, Atividade, Colaborador
+from .models import (Cliente, Projeto, Equipamento, Atividade, 
+                     Colaborador, Orcamento, ProjetoEquipamento, 
+                     ProjetoEquipamentoAtividade)
 
 class ClienteSerializer(serializers.ModelSerializer):
     class Meta:
@@ -26,4 +28,19 @@ class AtividadeSerializer(serializers.ModelSerializer):
 class ColaboradorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Colaborador
+        fields = '__all__'
+
+class OrcamentoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Orcamento
+        fields = '__all__'
+
+class ProjetoEquipamentoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProjetoEquipamento
+        fields = '__all__'
+
+class ProjetoEquipamentoAtividadeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProjetoEquipamentoAtividade
         fields = '__all__'

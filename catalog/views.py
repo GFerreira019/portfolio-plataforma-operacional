@@ -1,8 +1,10 @@
 from rest_framework import viewsets
-from .models import Cliente, Projeto, Equipamento, Atividade, Colaborador
+from .models import (Cliente, Projeto, Equipamento, Atividade, Colaborador,
+                     Orcamento, ProjetoEquipamento, ProjetoEquipamentoAtividade)
 from .serializers import (
     ClienteSerializer, ProjetoSerializer, EquipamentoSerializer,
-    AtividadeSerializer, ColaboradorSerializer
+    AtividadeSerializer, ColaboradorSerializer, OrcamentoSerializer,
+    ProjetoEquipamentoSerializer, ProjetoEquipamentoAtividadeSerializer
 )
 from core.permissions import IsPlanejadorOrReadOnly
 
@@ -42,3 +44,20 @@ class ColaboradorViewSet(viewsets.ModelViewSet):
     queryset = Colaborador.objects.select_related('usuario').all()
     serializer_class = ColaboradorSerializer
     permission_classes = [IsPlanejadorOrReadOnly]
+
+class OrcamentoViewSet(viewsets.ModelViewSet):
+    queryset = Orcamento.objects.select_related('projeto').all()
+    serializer_class = OrcamentoSerializer
+    permission_classes = [IsPlanejadorOrReadOnly]
+
+class ProjetoEquipamentoViewSet(viewsets.ModelViewSet):
+    queryset = ProjetoEquipamento.objects.select_related('projeto', 'equipamento').all()
+    serializer_class = ProjetoEquipamentoSerializer
+    permission_classes = [IsPlanejadorOrReadOnly]
+    filterset_fields = ['projeto', 'equipamento']
+
+class ProjetoEquipamentoAtividadeViewSet(viewsets.ModelViewSet):
+    queryset = ProjetoEquipamentoAtividade.objects.select_related('projeto_equipamento', 'atividade').all()
+    serializer_class = ProjetoEquipamentoAtividadeSerializer
+    permission_classes = [IsPlanejadorOrReadOnly]
+    filterset_fields = ['projeto_equipamento', 'atividade']
