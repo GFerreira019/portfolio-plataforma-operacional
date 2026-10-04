@@ -79,3 +79,37 @@ class ProjetoAnalyticsService:
                 "desvio_horas_abs": round(desvio_horas, 2)
             }
         }
+
+class EquipamentoProdutividadeService:
+    @staticmethod
+    def recalcular_tempo_medio(projeto_equipamento_atividade):
+        from operations.models import Apontamento
+        from decimal import Decimal
+
+        apontamentos = Apontamento.objects.filter(
+            projeto=projeto_equipamento_atividade.projeto_equipamento.projeto,
+            equipamento=projeto_equipamento_atividade.projeto_equipamento.equipamento,
+            atividade=projeto_equipamento_atividade.atividade,
+            status='APROVADO'
+        )
+
+        total_horas = sum(a.horas for a in apontamentos)
+        total_quantidade = sum(a.quantidade for a in apontamentos)
+        total_amostras = apontamentos.count()
+
+        projeto_equipamento_atividade.total_amostras = total_amostras
+
+        if total_quantidade > Decimal('0.00'):
+            tempo_medio_real = total_horas / total_quantidade
+            projeto_equipamento_atividade.tempo_medio_real = tempo_medio_real
+
+            if projeto_equipamento_atividade.tempo_medio_estimado > Decimal('0.00'):
+                desvio = ((tempo_medio_real - projeto_equipamento_atividade.tempo_medio_estimado) / projeto_equipamento_atividade.tempo_medio_estimado) * 100
+                projeto_equipamento_atividade.desvio_tempo_pct = desvio
+            else:
+                projeto_equipamento_atividade.desvio_tempo_pct = None
+        else:
+            projeto_equipamento_atividade.tempo_medio_real = None
+            projeto_equipamento_atividade.desvio_tempo_pct = None
+        
+        projeto_equipamento_atividade.save()

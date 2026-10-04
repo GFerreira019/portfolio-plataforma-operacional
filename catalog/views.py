@@ -30,6 +30,34 @@ class ProjetoViewSet(viewsets.ModelViewSet):
             return Response({"error": dados["error"]}, status=400)
         return Response(dados)
 
+    @action(detail=True, methods=['post'])
+    def setup_equipamentos(self, request, pk=None):
+        projeto = self.get_object()
+        setup_data = request.data.get('setup', [])
+        
+        from django.db import transaction
+        from catalog.models import ProjetoEquipamento, ProjetoEquipamentoAtividade
+        
+        with transaction.atomic():
+            for item in setup_data:
+                equipamento_id = item.get('equipamento_id')
+                pe, created = ProjetoEquipamento.objects.get_or_create(
+                    projeto=projeto,
+                    equipamento_id=equipamento_id
+                )
+                
+                atividades = item.get('atividades', [])
+                for atv in atividades:
+                    pea, created = ProjetoEquipamentoAtividade.objects.update_or_create(
+                        projeto_equipamento=pe,
+                        atividade_id=atv.get('atividade_id'),
+                        defaults={
+                            'tempo_medio_estimado': atv.get('tempo_medio_estimado', 0.00)
+                        }
+                    )
+        
+        return Response({"status": "Setup realizado com sucesso."})
+
 class EquipamentoViewSet(viewsets.ModelViewSet):
     queryset = Equipamento.objects.all()
     serializer_class = EquipamentoSerializer

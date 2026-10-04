@@ -281,3 +281,73 @@ class AnalyticsServiceTestCase(TestCase):
         # Previsão: Faltam 400 quantidades. Ritmo de 1 und/h -> Precisa de 500 horas totais.
         self.assertEqual(res['kpis']['previsao_horas_finais'], Decimal('500.00'))
         self.assertEqual(res['kpis']['desvio_horas_abs'], Decimal('400.00')) # 400 horas a mais que o previsto (100)
+
+class EquipamentoProdutividadeServiceTestCase(TestCase):
+    def setUp(self):
+        self.cliente = Cliente.objects.create(codigo='CLI', nome='Cli')
+        self.projeto = Projeto.objects.create(cliente=self.cliente, codigo='PRJ')
+        self.equip = Equipamento.objects.create(codigo='EQ', nome='Equip')
+        self.pe = ProjetoEquipamento.objects.create(projeto=self.projeto, equipamento=self.equip)
+        self.ativ = Atividade.objects.create(codigo='AT', nome='Atividade')
+        
+        # Setup inicial com 2.5 horas estimadas por unidade
+        self.pea = ProjetoEquipamentoAtividade.objects.create(
+            projeto_equipamento=self.pe,
+            atividade=self.ativ,
+            tempo_medio_estimado=2.50
+        )
+        
+        # Grupo e usuário para ter o colaborador necessário pro apontamento
+        user = User.objects.create_user(username='tec', password='123')
+        self.colab = Colaborador.objects.create(nome='Tec', usuario=user, custo_hora=50.0)
+
+    def test_recalculo_autoajuste_apos_aprovacao(self):
+        from operations.services import EquipamentoProdutividadeService
+        
+        # Apontamento EM_ANALISE (não deve impactar o cálculo)
+        apont_em_analise = Apontamento.objects.create(
+            projeto=self.projeto, equipamento=self.equip, atividade=self.ativ,
+            colaborador=self.colab, data=date.today(),
+            horas=5.0, quantidade=1.0, status='EM_ANALISE'
+        )
+        
+        EquipamentoProdutividadeService.recalcular_tempo_medio(self.pea)
+        self.pea.refresh_from_db()
+        self.assertEqual(self.pea.total_amostras, 0)
+        self.assertIsNone(self.pea.tempo_medio_real)
+
+        # Apontamento APROVADO 1 (4h / 2un = 2.0 h/un)
+        apont_aprovado1 = Apontamento.objects.create(
+            projeto=self.projeto, equipamento=self.equip, atividade=self.ativ,
+            colaborador=self.colab, data=date.today(),
+            horas=4.0, quantidade=2.0, status='APROVADO'
+        )
+        
+        EquipamentoProdutividadeService.recalcular_tempo_medio(self.pea)
+        self.pea.refresh_from_db()
+        self.assertEqual(self.pea.total_amostras, 1)
+        self.assertEqual(float(self.pea.tempo_medio_real), 2.00)
+        
+        # Desvio %: Estimado 2.5, Real 2.0. Economia de tempo.
+        # Desvio = ((2.0 - 2.5) / 2.5) * 100 = -20%
+        self.assertEqual(float(self.pea.desvio_tempo_pct), -20.00)
+
+        # Apontamento APROVADO 2 (14h / 2un = 7.0 h/un)
+        apont_aprovado2 = Apontamento.objects.create(
+            projeto=self.projeto, equipamento=self.equip, atividade=self.ativ,
+            colaborador=self.colab, data=date.today(),
+            horas=14.0, quantidade=2.0, status='APROVADO'
+        )
+
+        EquipamentoProdutividadeService.recalcular_tempo_medio(self.pea)
+        self.pea.refresh_from_db()
+        
+        # Total de apontamentos: 2
+        # Total horas: 18.0
+        # Total unid: 4.0
+        # Média Real: 18.0 / 4.0 = 4.5 h/un
+        self.assertEqual(self.pea.total_amostras, 2)
+        self.assertEqual(float(self.pea.tempo_medio_real), 4.50)
+        
+        # Desvio = ((4.5 - 2.5) / 2.5) * 100 = 80.0%
+        self.assertEqual(float(self.pea.desvio_tempo_pct), 80.00)

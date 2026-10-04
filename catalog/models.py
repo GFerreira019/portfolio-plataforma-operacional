@@ -57,6 +57,12 @@ class Atividade(models.Model):
 class ProjetoEquipamentoAtividade(models.Model):
     projeto_equipamento = models.ForeignKey(ProjetoEquipamento, on_delete=models.CASCADE, related_name='atividades')
     atividade = models.ForeignKey(Atividade, on_delete=models.CASCADE, related_name='projetos_equipamentos')
+    
+    # Novos campos para Autoajuste
+    tempo_medio_estimado = models.DecimalField(max_digits=8, decimal_places=2, default=0.00, help_text="Tempo manual inicial previsto por unidade em horas")
+    tempo_medio_real = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True, help_text="Tempo médio real calculado a partir de apontamentos aprovados")
+    desvio_tempo_pct = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, help_text="Desvio percentual entre estimado e real")
+    total_amostras = models.IntegerField(default=0, help_text="Total de apontamentos aprovados considerados no cálculo")
 
     class Meta:
         constraints = [

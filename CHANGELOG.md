@@ -19,6 +19,17 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
 - Registrar aqui cada nova implementação, correção ou decisão técnica antes de considerar a entrega concluída.
 
+### 2026-10-04 (Setup de Equipamentos e Autoajuste)
+- **O que foi feito:** Funcionalidade completa de Setup de Equipamentos por Projeto com recálculo automático de Produtividade (Tempo Médio Autoajustável).
+- **Áreas afetadas:**
+  - `catalog/models.py`: Adicionados campos `tempo_medio_estimado`, `tempo_medio_real`, `desvio_tempo_pct` e `total_amostras` à tabela `ProjetoEquipamentoAtividade`.
+  - `catalog/migrations/0005_projetoequipamentoatividade_desvio_tempo_pct_and_more.py`: Migration criada e aplicada com sucesso.
+  - `catalog/views.py`: Adicionada ação `setup_equipamentos` em `ProjetoViewSet` para salvar o Setup em Lote disparado pelo frontend.
+  - `operations/services.py`: Criado serviço `EquipamentoProdutividadeService` contendo a regra de negócios pura de agrupamento e recálculo do tempo médio e desvio percentual.
+  - `operations/views.py`: O serviço de recálculo foi injetado dentro da ação `aprovar` de `ApontamentoViewSet`, garantindo que todo apontamento aprovado atualize o KPI na mesma transação/request.
+  - `operations/tests.py`: Criado o `EquipamentoProdutividadeServiceTestCase` validando todo o fluxo de cálculos, apontamentos e ignorando aprovações pendentes ou rejeitadas.
+  - `frontend_app/src/components/SetupEquipamentos.jsx`: Componente UI criado e renderizado no `PainelPlanejador` para a gestão interativa dos tempos médios previstos.
+
 ### 2026-10-04 (Fase 8)
 - **O que foi feito:** Configuração do CPQ, Indicadores e Business Intelligence (Fase 8) concluída.
 - **Áreas afetadas:**

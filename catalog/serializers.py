@@ -44,3 +44,4 @@ class ProjetoEquipamentoAtividadeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProjetoEquipamentoAtividade
         fields = '__all__'
+        read_only_fields = ['tempo_medio_real', 'desvio_tempo_pct', 'total_amostras']
